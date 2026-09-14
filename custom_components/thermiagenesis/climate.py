@@ -25,7 +25,7 @@ from .const import DOMAIN
 from .const import KEY_STATUS_VALUE
 
 ATTR_FIRMWARE = "firmware"
-ATTR_MODEL = "Diplomat Inverter Duo"
+ATTR_MODEL = "Atlas 12"
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -39,8 +39,8 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
     sensors = []
 
     device_info = {
-        "identifiers": {(DOMAIN, ATTR_MODEL)},
-        "name": ATTR_MODEL,
+        "identifiers": {(DOMAIN, ATTR_MODEL), (DOMAIN, "Diplomat Inverter Duo")},
+        "name": "Thermia Atlas 12",
         "manufacturer": ATTR_MANUFACTURER,
         "model": ATTR_MODEL,
         "sw_version": coordinator.data.get(ATTR_FIRMWARE),

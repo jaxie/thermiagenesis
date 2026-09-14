@@ -7,7 +7,7 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from .const import ATTR_MANUFACTURER
 from .const import DOMAIN
 
-ATTR_MODEL = "Diplomat Inverter Duo"
+ATTR_MODEL = "Atlas 12"
 ATTR_FIRMWARE = "firmware"
 
 _LOGGER: logging.Logger = logging.getLogger(__package__)
@@ -28,8 +28,8 @@ class ThermiaGenesisEntity(CoordinatorEntity):
     @property
     def device_info(self):
         return {
-            "identifiers": {(DOMAIN, ATTR_MODEL)},
-            "name": ATTR_MODEL,
+            "identifiers": {(DOMAIN, ATTR_MODEL), (DOMAIN, "Diplomat Inverter Duo")},
+            "name": "Thermia Atlas 12",
             "manufacturer": ATTR_MANUFACTURER,
             "model": ATTR_MODEL,
             "sw_version": self.coordinator.data.get(ATTR_FIRMWARE),
@@ -64,8 +64,8 @@ class HeatpumpEntity(CoordinatorEntity):
     @property
     def device_info(self):
         return {
-            "identifiers": {(DOMAIN, ATTR_MODEL)},
-            "name": ATTR_MODEL,
+            "identifiers": {(DOMAIN, ATTR_MODEL), (DOMAIN, "Diplomat Inverter Duo")},
+            "name": "Thermia Atlas 12",
             "manufacturer": ATTR_MANUFACTURER,
             "model": ATTR_MODEL,
             "sw_version": self.coordinator.data.get(ATTR_FIRMWARE),
