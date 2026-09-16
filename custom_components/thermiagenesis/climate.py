@@ -94,6 +94,8 @@ class ThermiaClimateSensor(ClimateEntity):
     def current_temperature(self):
         """Return the current temperature."""
         val = self.coordinator.data.get(self.meta[ATTR_CURRENT_TEMPERATURE])
+        if val is not None and (val >= 200 or val <= -50):
+            return None
         return val
 
     @property
@@ -102,6 +104,8 @@ class ThermiaClimateSensor(ClimateEntity):
         if ATTR_TARGET_TEMP_LOW not in self.meta:
             return None
         val = self.coordinator.data.get(self.meta[ATTR_TARGET_TEMP_LOW])
+        if val is not None and (val >= 200 or val <= -50):
+            return None
         return val
 
     @property
@@ -124,6 +128,8 @@ class ThermiaClimateSensor(ClimateEntity):
         if ATTR_TARGET_TEMP_HIGH not in self.meta:
             return None
         val = self.coordinator.data.get(self.meta[ATTR_TARGET_TEMP_HIGH])
+        if val is not None and (val >= 200 or val <= -50):
+            return None
         return val
 
     @property
@@ -140,6 +146,8 @@ class ThermiaClimateSensor(ClimateEntity):
         if ATTR_TEMPERATURE not in self.meta:
             return None
         val = self.coordinator.data.get(self.meta[ATTR_TEMPERATURE])
+        if val is not None and (val >= 200 or val <= -50):
+            return None
         return val
 
     @property

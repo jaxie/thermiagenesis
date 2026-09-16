@@ -16,6 +16,7 @@ from .const import HEATPUMP_ALARMS
 from .const import HEATPUMP_ATTRIBUTES
 from .const import HEATPUMP_SENSOR
 from .const import SENSOR_TYPES
+from .const import UNIT_TEMPERATURE
 
 ATTR_COUNTER = "counter"
 ATTR_FIRMWARE = "firmware"
@@ -75,7 +76,13 @@ class ThermiaHeatpumpSensor(Entity):
         for attr in HEATPUMP_ATTRIBUTES:
             label = (attr[0].split("_", 1)[-1]).title()
             val = self.coordinator.data.get(attr[0])
-            if attr[1]:
+            if (
+                val is not None
+                and attr[1] == UNIT_TEMPERATURE
+                and (val >= 200 or val <= -50)
+            ):
+                val = None
+            elif attr[1]:
                 val = f"{val} {attr[1]}"
             self._attrs[label] = val
         if self.has_alarm():
@@ -165,6 +172,12 @@ class ThermiaGenericSensor(Entity):
     def state(self):
         """Return the state."""
         val = self.coordinator.data.get(self.kind)
+        if (
+            val is not None
+            and SENSOR_TYPES[self.kind].get(ATTR_UNIT) == UNIT_TEMPERATURE
+            and (val >= 200 or val <= -50)
+        ):
+            return None
         return val
 
     @property
@@ -202,7 +215,16 @@ class ThermiaGenericSensor(Entity):
     @property
     def available(self):
         """Return True if entity is available."""
-        return self.coordinator.last_update_success
+        if not self.coordinator.last_update_success:
+            return False
+        val = self.coordinator.data.get(self.kind)
+        if (
+            val is not None
+            and SENSOR_TYPES[self.kind].get(ATTR_UNIT) == UNIT_TEMPERATURE
+            and (val >= 200 or val <= -50)
+        ):
+            return False
+        return True
 
     @property
     def should_poll(self):
