@@ -905,13 +905,13 @@ SENSOR_TYPES = {
         ATTR_ICON: ICON_INPUT,
         ATTR_LABEL: "Brine In Temperature",
         ATTR_UNIT: UNIT_TEMPERATURE,
-        ATTR_DEFAULT_ENABLED: False,
+        ATTR_DEFAULT_ENABLED: True,
     },
     thermiaconst.ATTR_INPUT_BRINE_OUT_TEMPERATURE: {
         ATTR_ICON: ICON_INPUT,
         ATTR_LABEL: "Brine Out Temperature",
         ATTR_UNIT: UNIT_TEMPERATURE,
-        ATTR_DEFAULT_ENABLED: False,
+        ATTR_DEFAULT_ENABLED: True,
     },
     thermiaconst.ATTR_INPUT_SYSTEM_SUPPLY_LINE_TEMPERATURE: {
         ATTR_ICON: ICON_INPUT,
@@ -923,7 +923,7 @@ SENSOR_TYPES = {
         ATTR_ICON: ICON_INPUT,
         ATTR_LABEL: "Outdoor Temperature",
         ATTR_UNIT: UNIT_TEMPERATURE,
-        ATTR_DEFAULT_ENABLED: False,
+        ATTR_DEFAULT_ENABLED: True,
     },
     thermiaconst.ATTR_INPUT_TAP_WATER_TOP_TEMPERATURE: {
         ATTR_ICON: ICON_INPUT,
