@@ -105,9 +105,20 @@ class ThermiaGenesisDataUpdateCoordinator(DataUpdateCoordinator):
                 if reg_321 is not None and len(reg_321) > 0:
                     is_enabled_on_display = (reg_321[0] == 2)
                     data["holding_internal_immersion_heater_enable"] = reg_321[0]
-                    coil_val = data.get(thermiaconst.ATTR_COIL_ENABLE_INTERNAL_ADDITIONAL_HEATER, True)
-                    # The switch is ON only if both the physical display setting and Coil 4 are active
-                    data[thermiaconst.ATTR_COIL_ENABLE_INTERNAL_ADDITIONAL_HEATER] = bool(coil_val and is_enabled_on_display)
+                    current_coil = data.get(thermiaconst.ATTR_COIL_ENABLE_INTERNAL_ADDITIONAL_HEATER)
+                    # The physical touchscreen (Register 321) is the master authority:
+                    data[thermiaconst.ATTR_COIL_ENABLE_INTERNAL_ADDITIONAL_HEATER] = is_enabled_on_display
+
+                    # If display and Coil 4 are out of sync (e.g. user toggled physical display), auto-sync Coil 4
+                    if current_coil is not None and bool(current_coil) != is_enabled_on_display:
+                        try:
+                            self.thermia._client.write_single_coil(4, is_enabled_on_display)
+                            _LOGGER.info(
+                                "Auto-synced Coil 4 to %s to match physical display Register 321",
+                                is_enabled_on_display,
+                            )
+                        except Exception as coil_err:
+                            _LOGGER.debug("Failed to auto-sync Coil 4: %s", coil_err)
             except Exception as ex:
                 _LOGGER.debug(f"Failed to read holding register 321: {ex}")
 
