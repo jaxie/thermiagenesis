@@ -16,6 +16,7 @@ from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 from homeassistant.helpers.update_coordinator import UpdateFailed
 from pythermiagenesis import ThermiaGenesis
+import pythermiagenesis.const as thermiaconst
 
 from .const import DOMAIN
 
@@ -95,9 +96,21 @@ class ThermiaGenesisDataUpdateCoordinator(DataUpdateCoordinator):
             start_time = time.time()
             registers = self.attributes.keys()
             data = await self.thermia.async_update(only_registers=registers)
-            # for reg in registers:
-            #    #await self.thermia.async_update(only_registers=[reg]) #registers)
-            #    print(f"Got {reg}: {self.thermia.data[reg]}")
+
+            # Sync with physical display setting for internal immersion heater (Holding Reg 321)
+            try:
+                if not self.thermia._client.is_open():
+                    self.thermia._client.open()
+                reg_321 = self.thermia._client.read_holding_registers(321, 1)
+                if reg_321 is not None and len(reg_321) > 0:
+                    is_enabled_on_display = (reg_321[0] == 2)
+                    data["holding_internal_immersion_heater_enable"] = reg_321[0]
+                    coil_val = data.get(thermiaconst.ATTR_COIL_ENABLE_INTERNAL_ADDITIONAL_HEATER, True)
+                    # The switch is ON only if both the physical display setting and Coil 4 are active
+                    data[thermiaconst.ATTR_COIL_ENABLE_INTERNAL_ADDITIONAL_HEATER] = bool(coil_val and is_enabled_on_display)
+            except Exception as ex:
+                _LOGGER.debug(f"Failed to read holding register 321: {ex}")
+
             _LOGGER.debug(data)
             end_time = time.time()
             _LOGGER.debug(
@@ -112,9 +125,23 @@ class ThermiaGenesisDataUpdateCoordinator(DataUpdateCoordinator):
         """Set data via library."""
         try:
             await self.thermia.async_set(register, value)
+            if register == thermiaconst.ATTR_COIL_ENABLE_INTERNAL_ADDITIONAL_HEATER:
+                # Also set Holding Register 321 so the physical display toggle updates
+                try:
+                    if not self.thermia._client.is_open():
+                        self.thermia._client.open()
+                    reg_val = 2 if value else 0
+                    self.thermia._client.write_single_register(321, reg_val)
+                    self.thermia._client.close()
+                    _LOGGER.info(f"Synchronized Atlas physical display register 321 to {reg_val}")
+                except Exception as ex:
+                    _LOGGER.error(f"Failed to write holding register 321: {ex}")
+
             if self.data is not None:
                 new_data = dict(self.data)
                 new_data[register] = value
+                if register == thermiaconst.ATTR_COIL_ENABLE_INTERNAL_ADDITIONAL_HEATER:
+                    new_data["holding_internal_immersion_heater_enable"] = 2 if value else 0
                 self.async_set_updated_data(new_data)
         except (ConnectionError) as error:
             raise UpdateFailed(error)

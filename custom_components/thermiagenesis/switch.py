@@ -2,6 +2,7 @@ import logging
 
 from homeassistant.components.switch import SwitchEntity
 from pythermiagenesis.const import REGISTERS
+import pythermiagenesis.const as thermiaconst
 
 from .const import ATTR_CLASS
 from .const import ATTR_DEFAULT_ENABLED
@@ -71,7 +72,13 @@ class ThermiaSwitch(SwitchEntity):
     @property
     def extra_state_attributes(self):
         """Return the state attributes."""
-        return self._attrs
+        attrs = dict(self._attrs) if self._attrs else {}
+        if self.kind == thermiaconst.ATTR_COIL_ENABLE_INTERNAL_ADDITIONAL_HEATER:
+            display_reg = self.coordinator.data.get("holding_internal_immersion_heater_enable")
+            if display_reg is not None:
+                attrs["physical_display_setting"] = "Enabled" if display_reg == 2 else "Disabled"
+                attrs["holding_register_321"] = display_reg
+        return attrs
 
     @property
     def unique_id(self):
