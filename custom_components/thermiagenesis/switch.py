@@ -117,5 +117,5 @@ class ThermiaSwitch(SwitchEntity):
         await self.coordinator._async_set_data(self.kind, True)
 
     async def async_turn_off(self, **kwargs):
-        """Turn the entity on."""
+        """Turn the entity off."""
         await self.coordinator._async_set_data(self.kind, False)

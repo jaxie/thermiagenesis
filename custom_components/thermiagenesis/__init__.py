@@ -112,6 +112,10 @@ class ThermiaGenesisDataUpdateCoordinator(DataUpdateCoordinator):
         """Set data via library."""
         try:
             await self.thermia.async_set(register, value)
+            if self.data is not None:
+                new_data = dict(self.data)
+                new_data[register] = value
+                self.async_set_updated_data(new_data)
         except (ConnectionError) as error:
             raise UpdateFailed(error)
         return self.thermia.data
